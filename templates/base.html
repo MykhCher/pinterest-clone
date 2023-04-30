@@ -26,7 +26,7 @@
                     <li><a href="#" class="ms-1 nav-link px-2 link-dark"><b>Today</b></a></li>
                 </ul>
                 
-                <form action="{% url 'pinterest:search' %}" class="col-12 w-75 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <form action="{% url 'placeholder' %}" class="col-12 w-75 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                     <input name="q" style="background-color: #e1e1e1;" type="search" class="pt-2 pb-2 form-control border rounded-pill" placeholder="Search" aria-label="Search">
                 </form>
                 
@@ -35,7 +35,7 @@
                     <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" class="me-3 Hn_ gUZ B9u U9O kVc" height="24" width="24" viewBox="0 0 24 24" aria-hidden="true" aria-label="" role="img"><path d="M18 12.5a1.5 1.5 0 1 1 .001-3.001A1.5 1.5 0 0 1 18 12.5m-6 0a1.5 1.5 0 1 1 .001-3.001A1.5 1.5 0 0 1 12 12.5m-6 0a1.5 1.5 0 1 1 .001-3.001A1.5 1.5 0 0 1 6 12.5M12 0C5.925 0 1 4.925 1 11c0 2.653.94 5.086 2.504 6.986L2 24l5.336-3.049A10.93 10.93 0 0 0 12 22c6.075 0 11-4.925 11-11S18.075 0 12 0" fill="#767676" stroke-width="0px"></path></svg>
                 </div>
                 
-                <a href="{% url 'accounts:profile' request.user.username %}">
+                <a href="{% url 'profile' request.user.username %}">
                     <img src="{{ request.user.profile.photo.url }}" alt="mdo" width="32" height="32" class="rounded-circle">
                 </a>
                 
@@ -45,8 +45,8 @@
                     </a>
                     
                     <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                        <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}">Settings</a></li>
-                        <li><a class="dropdown-item" href="{% url 'accounts:user_logout' %}">Sign out</a></li>
+                        <li><a class="dropdown-item" href="{% url 'placeholder' %}">Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
                     </ul>
                 </div>
             </div>

@@ -60,7 +60,7 @@ class Profile(models.Model):
     )
     description = models.TextField(verbose_name="description", blank=True)
     profile_status = models.CharField(verbose_name="profile_status", max_length=150, blank=True)
-    photo = models.ImageField(default='profiles.default.png', upload_to='profiles')
+    photo = models.ImageField(default='profiles/default.png', upload_to='profiles')
     sex = models.CharField(choices=SEX_CHOICES, default='o')
 
     def __str__(self) -> str:

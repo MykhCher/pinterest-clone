@@ -1,19 +1,27 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.views.generic import FormView, TemplateView, View
+from django.views.generic.detail import DetailView
 from .forms import CustomUserCreationForm, UserLoginForm
+from .models import Profile
 
 User = get_user_model()
 
+
 class EmailVerify(View):
-    def get(self, request, uidb64, token):
+    """Verify account via email message token, generated and 
+    sent by `RegisterFormView.send_activation_email()`
+    """
+
+    def get(self, request: HttpRequest, uidb64: bytes | str, token: str) -> HttpResponseRedirect:
         acc_activation_token = PasswordResetTokenGenerator()
         try:
             uid = force_bytes(urlsafe_base64_decode(uidb64))
@@ -24,9 +32,10 @@ class EmailVerify(View):
         if user is not None and acc_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
-            return redirect('placeholder')
+            return redirect('login')
         else:
             return redirect('placeholder')
+
 
 class RegisterFormView(FormView):
     form_class = CustomUserCreationForm
@@ -34,7 +43,7 @@ class RegisterFormView(FormView):
     template_name = "register.html"
 
 
-    def send_activation_email(self, request, user: User, to_email: str) -> int:
+    def send_activation_email(self, request: HttpRequest, user: User, to_email: str) -> int:
         """Send mail with user verification token to the `to_email` address."""
         acc_activation_token = PasswordResetTokenGenerator()
         email = EmailMessage(
@@ -65,6 +74,7 @@ class RegisterFormView(FormView):
         )
         return super().form_valid(form)
     
+
 class UserLoginView(FormView):
     form_class = UserLoginForm
     success_url = reverse_lazy("placeholder")
@@ -79,6 +89,17 @@ class UserLoginView(FormView):
         errors = form.errors['__all__']
         print(errors)
         return super().form_invalid(form)
+
+
+class LogoutView(View):
+
+    def get(self, request: HttpRequest) -> HttpResponseRedirect:
+        logout(request)
+        return redirect('login')
+    
+
+class ProfileView(DetailView):
+    model = Profile
 
     
 class PlaceholderView(TemplateView):

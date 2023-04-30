@@ -1,9 +1,11 @@
 from django.urls import path
-from .views import RegisterFormView, PlaceholderView, EmailVerify, UserLoginView
+from . import views
 
 urlpatterns = [
-    path("register/", RegisterFormView.as_view(), name="profile_register"),
-    path("placeholder/", PlaceholderView.as_view(), name="placeholder"),
-    path("activate/<uidb64>/<token>/", EmailVerify.as_view(), name="activate"),
-    path("login/", UserLoginView.as_view(), name="login")
+    path("register/", views.RegisterFormView.as_view(), name="profile_register"),
+    path("placeholder/", views.PlaceholderView.as_view(), name="placeholder"),
+    path("activate/<uidb64>/<token>/", views.EmailVerify.as_view(), name="activate"),
+    path("login/", views.UserLoginView.as_view(), name="login"),
+    path('logout/', views.LogoutView.as_view(), name="logout"),
+    path('profile/<str:username>', views.DetailView.as_view(), name="profile")
 ]
