@@ -1,7 +1,9 @@
+from typing import Any, Optional
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.db import models
 from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -100,8 +102,11 @@ class LogoutView(View):
 
 class ProfileView(DetailView):
     model = Profile
-
+    template_name = "profile_detail.html"
+    slug_field = "user__username"
+    slug_url_kwarg = "user__username"
     
+
 class PlaceholderView(TemplateView):
     """A placeholder view, temporary used to be a redirection target."""
     template_name = "placeholder.html"
