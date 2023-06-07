@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -49,7 +47,7 @@ def send_confirmation_email(sender, instance: CustomUser, created: bool, **kwarg
                     "token": token,
                 }
             ),
-            to=instance.email,
+            to=(instance.email, ),
         )
 
         message.send()

@@ -12,8 +12,7 @@ def send_account_otp(email: str, user: CustomUser, subject: str) -> int | None:
 
     # Generate code, message, configure the sender and recipient.
     otp = secrets.choice(range(1000, 10000))
-    message = f"Hi {user.username},\n\nYour account one-time-password \
-                is {otp}.\
+    message = f"Hi {user.username},\n\nYour account one-time-password is {otp}.\
                 \n This one-time password will expire in the next 10 minutes.\
                 \n Kindly supply it to move forward in the pipeline.\n\n\nCheers"
     email_from = settings.EMAIL_HOST_USER

@@ -61,7 +61,7 @@ MIDDLEWARE = [
 ]
 
 SITE_ID = 2
-DEFAULT_DOMAIN = f"http://{ALLOWED_HOSTS[2]}/"
+DEFAULT_DOMAIN = f"{ALLOWED_HOSTS[2]}:8000"
 
 ROOT_URLCONF = 'pinterest_pet.urls'
 
