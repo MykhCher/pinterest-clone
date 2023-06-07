@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-*)ey#%h#)@-9dvikj&nk4@m#aa)wo6+2jidgjrf&543dfbjp*&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['db', 'localhost']
+ALLOWED_HOSTS = ['db', 'localhost', '127.0.0.1']
+ALLOWED_PORTS = ['8000']
 
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = 'a04df287fb5857'
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'accounts.apps.AccountsConfig',
     'core.apps.CoreConfig',
 ]
@@ -54,8 +56,12 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SITE_ID = 2
+DEFAULT_DOMAIN = f"http://{ALLOWED_HOSTS[2]}/"
 
 ROOT_URLCONF = 'pinterest_pet.urls'
 

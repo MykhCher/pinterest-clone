@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Forgot Password</title>
+        <meta name="description" content="Forgot password page. Send one-time code to an email adress">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <main>
+            <div>
+                <form action={% url 'send_otp' %} method='POST'>
+                    {% csrf_token %}
+                    <p>
+                        <input type='email' placeholder='Write your email here.' name='email'>
+                    </p>
+                    <p>
+                        <input type='submit' value='Send email'>
+                    </p>
+                </form>
+            </div>
+        </main>
+    </body>
+</html>

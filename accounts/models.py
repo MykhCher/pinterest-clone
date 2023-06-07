@@ -65,3 +65,14 @@ class Profile(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username} profile"
+    
+
+class ForgotPassword(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    forget_password_otp = models.CharField(max_length=5, null=True, blank=True)
+    is_user_password_updated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.username

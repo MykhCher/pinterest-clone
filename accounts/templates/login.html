@@ -23,8 +23,12 @@
                 <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" value="Login">
             </form>
             <small class="text-muted mt-3">
-                New Here? <a class="text-decoration-none" href="{% url 'profile_register' %}">Create account</a>
+                New Here? <a class="text-decoration-none" href="{% url 'profile_register' %}">Create account</a> | 
+                <a class="text-decoration-none" href="{% url 'forgot' %}">Forgot Password?</a>
             </small>
+            {% comment %} <small class="text-muted mt-3">
+                <a class="text-decoration-none" href="{% url 'forgot' %}">Forgot Password?</a>
+            </small> {% endcomment %}
         </div>
     </div>
 </body>
