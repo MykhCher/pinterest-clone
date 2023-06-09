@@ -1,13 +1,7 @@
-from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import EmailMessage
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from .models import CustomUser, Profile, ForgotPassword
-from .thread import SendForgotPasswordEmail
+from .thread import SendForgotPasswordEmail, SendVerificationToken
 
 
 @receiver(post_save, sender=CustomUser)
@@ -31,26 +25,15 @@ def create_profile(sender, instance: CustomUser, created: bool, **kwargs) -> Non
 @receiver(post_save, sender=CustomUser)
 def send_confirmation_email(sender, instance: CustomUser, created: bool, **kwargs) -> None:
     """Send confirmation link to an email adress, provided by user."""
-    if created:
-        generator = PasswordResetTokenGenerator()
-        token = generator.make_token(instance)
+    try:
+        if created:
+            # Create and join new thread.
+            new_thread = SendVerificationToken(instance.email, instance)
+            new_thread.start()
+            new_thread.join()
 
-        # Building email from existing template
-        message = EmailMessage(
-            subject="Activate your account!",
-            body=render_to_string(
-                template_name="acc_activate_email.html",
-                context={
-                    "username": instance.username,
-                    "domain": settings.DEFAULT_DOMAIN,
-                    "uid": urlsafe_base64_encode(force_bytes(instance.pk)),
-                    "token": token,
-                }
-            ),
-            to=(instance.email, ),
-        )
-
-        message.send()
+    except SystemError as e:
+        print(e)
 
 
 @receiver(post_save, sender=ForgotPassword)

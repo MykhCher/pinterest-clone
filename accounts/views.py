@@ -40,36 +40,9 @@ class RegisterFormView(FormView):
     success_url = reverse_lazy("login")
     template_name = "register.html"
 
-
-    # def send_activation_email(self, request: HttpRequest, user: User, to_email: str) -> int:
-    #     """Send mail with user verification token to the `to_email` address."""
-    #     acc_activation_token = PasswordResetTokenGenerator()
-    #     email = EmailMessage(
-    #         subject='Activate your user account', 
-    #         body=render_to_string(
-    #             template_name="acc_activate_email.html",
-    #             context={
-    #                 'user': user,
-    #                 'domain': get_current_site(request).domain,
-    #                 'uid' : urlsafe_base64_encode(force_bytes(user.pk)),
-    #                 'token' : acc_activation_token.make_token(user),
-    #                 'protocol' : 'https' if request.is_secure() else 'http'
-    #             }
-    #         ),
-    #         to=[to_email]
-    #     )
-    #     return email.send() 
-
-
     def form_valid(self, form):
         user = form.save(commit=False)
-        # user.is_active = False
         user.save()
-        # self.send_activation_email(
-        #     request=self.request,
-        #     user=user,
-        #     to_email=form.cleaned_data.get("email"),
-        # )
         return super().form_valid(form)
     
 
