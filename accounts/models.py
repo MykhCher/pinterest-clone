@@ -68,7 +68,7 @@ class Profile(models.Model):
     
 
 class ForgotPassword(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="forgot_pass")
     forget_password_otp = models.CharField(max_length=5, null=True, blank=True)
     is_user_password_updated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

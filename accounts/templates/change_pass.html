@@ -12,13 +12,11 @@
     <div class="modal-content ps-5 pb-5 pe-5">
         <h3 class="mt-4 mb-3"><b>Success. Check your email for the one-time code!</b></h3>
         <div class="row">
-            <form method="post" action={% url 'check_otp' %}>
+            <form method="post">
                 {% csrf_token %}
-                <input type="hidden" name="sent_email" value={{email}}>
-                <div class="">
-                    <input type="text" name="otp" placeholder="Enter your one-time code here">
-                </div>
-                <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" value="Check code">
+                {{form.new_password1}}
+                {{form.new_password2}}
+                <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" name="Change password">
             </form>
         </div>
     </div>
