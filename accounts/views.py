@@ -20,7 +20,7 @@ User = get_user_model()
 
 class EmailVerify(View):
     """Verify account via email message token, generated and 
-    sent by `RegisterFormView.send_activation_email()`
+    sent by `send_confirmation_email()` signal.
     """
 
     def get(self, request: HttpRequest, uidb64: bytes | str, token: str) -> HttpResponseRedirect:
@@ -98,21 +98,27 @@ class SendOTPView(View):
     
 
 class ChangePasswordView(FormView):
+    """Password reset form-view."""
     form_class = CustomPasswordResetForm
     template_name = 'change_pass.html'
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('home')
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse | HttpResponseRedirect:
+        """Handling GET and POST methods."""
+
+        # Check for keyword arguments in url.
         if "uidb64" not in kwargs or "token" not in kwargs:
             raise ImproperlyConfigured(
                 "The URL path must contain 'uidb64' and 'token' parameters."
             )
 
+        # Search for user, using given in url-kwargs user id (uid).
         uidb64 = urlsafe_base64_decode(kwargs['uidb64'])
         self.user = User.objects.get(id=uidb64)
 
         if self.user is not None:
             token = kwargs['token']
+            # Handle posted form data.
             if request.method.lower() == 'post':
                 form = CustomPasswordResetForm(user=self.user, data=request.POST)    # u55VH29Uhy$2
                 if form.is_valid():
@@ -122,11 +128,12 @@ class ChangePasswordView(FormView):
                 
             code = self.user.forgot_pass.last()
             if token == code.forget_password_otp and timezone.now() <= code.created_at + timezone.timedelta(minutes=10):
-                # If tokens match, display the password reset form.
+                # If tokens match and it haven't expired yet, display the password reset form.
                 form = CustomPasswordResetForm(user=self.user)
                 context = self.get_context_data(form=form)
                 return self.render_to_response(context)
         
+        # Return to email sending page, if something went wrong.
         return redirect('forgot')
         
 
@@ -141,6 +148,7 @@ class ChangePasswordView(FormView):
 
 
 class CheckOTP(View):
+    """Transition view, used to validate the OTP and check for its expiration date."""
 
     def post(self, request: HttpRequest) -> HttpResponseRedirect:
         otp = request.POST.get('otp') # Get 4-digit code from the request.
