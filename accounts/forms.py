@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField, SetPasswordForm
 from .models import CustomUser
 
 class CustomUserCreationForm(UserCreationForm):
@@ -72,3 +72,38 @@ class UserLoginForm(AuthenticationForm):
             attrs={'class': 'form-control rounded-pill', 'placeholder': 'Password'}
         )
     )
+
+
+class CustomPasswordResetForm(SetPasswordForm):
+
+    new_password1 = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={ 
+                'class': 'form-control rounded-pill', 
+                'placeholder': 'Password',
+            }
+        ),
+    )
+    new_password2 = forms.CharField(
+        label="Password confirmation",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control rounded-pill', 
+                'placeholder': 'Confirm password',
+            }
+        ),
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user, *args, **kwargs)
+
+    def save(self, commit=True):
+        password = self.cleaned_data["new_password1"]
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user
+    

@@ -1,7 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth import get_user_model, login, logout
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.forms import SetPasswordForm 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
@@ -12,7 +10,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.views.generic import FormView, TemplateView, View
 from django.views.generic.detail import DetailView
-from .forms import CustomUserCreationForm, UserLoginForm
+from .forms import CustomUserCreationForm, UserLoginForm, CustomPasswordResetForm
 from .models import Profile, ForgotPassword
 
 import time
@@ -99,8 +97,8 @@ class SendOTPView(View):
         return render(request, self.template_name, {"email": user.email})
     
 
-class ChangePasswordView(auth_views.PasswordResetConfirmView):
-    form_class = SetPasswordForm
+class ChangePasswordView(FormView):
+    form_class = CustomPasswordResetForm
     template_name = 'change_pass.html'
     success_url = reverse_lazy('login')
 
@@ -110,32 +108,35 @@ class ChangePasswordView(auth_views.PasswordResetConfirmView):
                 "The URL path must contain 'uidb64' and 'token' parameters."
             )
 
-        self.validlink = False
         uidb64 = urlsafe_base64_decode(kwargs['uidb64'])
         self.user = User.objects.get(id=uidb64)
 
         if self.user is not None:
             token = kwargs['token']
-            if token == self.user.forgot_pass.last().forget_password_otp:
+            if request.method.lower() == 'post':
+                form = CustomPasswordResetForm(user=self.user, data=request.POST)    # u55VH29Uhy$2
+                if form.is_valid():
+                    return self.form_valid(form)
+                elif not form.is_valid():
+                    return self.form_invalid(form)
+                
+            code = self.user.forgot_pass.last()
+            if token == code.forget_password_otp and timezone.now() <= code.created_at + timezone.timedelta(minutes=10):
                 # If tokens match, display the password reset form.
-                self.validlink = True
-                context = self.get_context_data()
-                context['uid'] = str(int(uidb64))
-                context['code'] = str(token)
-                print(context)
+                form = CustomPasswordResetForm(user=self.user)
+                context = self.get_context_data(form=form)
                 return self.render_to_response(context)
         
         return redirect('forgot')
         
 
-    def form_valid(self, form: SetPasswordForm) -> HttpResponse:
-        print('a')
+    def form_valid(self, form: CustomPasswordResetForm) -> HttpResponse:
         user = form.save()
         login(self.request, user)
         return super().form_valid(form)
     
-    def form_invalid(self, form: SetPasswordForm) -> HttpResponse:
-        print('b')
+    def form_invalid(self, form: CustomPasswordResetForm) -> HttpResponse:
+        print(form.error_messages)
         return super().form_invalid(form)
 
 

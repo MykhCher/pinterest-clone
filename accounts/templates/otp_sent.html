@@ -16,7 +16,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="sent_email" value={{email}}>
                 <div class="">
-                    <input type="text" name="otp" placeholder="Enter your one-time code here">
+                    <input class="form-control rounded-pill" type="text" name="otp" placeholder="Enter your one-time code here">
                 </div>
                 <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" value="Check code">
             </form>

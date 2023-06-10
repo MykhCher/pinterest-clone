@@ -10,13 +10,12 @@
 {% include 'first_header.html' %}
 <body class="login-bg" style="height: 100vh;">
     <div class="modal-content ps-5 pb-5 pe-5">
-        <h3 class="mt-4 mb-3"><b>Success. Check your email for the one-time code!</b></h3>
+        <h3 class="mt-4 mb-3"><b>Now you may change your password!</b></h3>
         <div class="row">
             <form method="post">
                 {% csrf_token %}
-                {{form.new_password1}}
-                {{form.new_password2}}
-                <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" name="Change password">
+                {{form}}
+                <button class="modal-red-btn btn text-white mt-3 w-100" type="input">Change Password</button>
             </form>
         </div>
     </div>
