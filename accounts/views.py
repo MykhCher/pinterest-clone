@@ -1,17 +1,20 @@
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.views.generic import FormView, TemplateView, View
-from django.views.generic.detail import DetailView, SingleObjectMixin
-from .forms import CustomUserCreationForm, UserLoginForm, CustomPasswordResetForm
+from django.views.generic.detail import DetailView
+from .forms import (CustomUserCreationForm, 
+                    UserLoginForm, 
+                    CustomPasswordResetForm,
+                    EditProfileForm)
 from .models import Profile, ForgotPassword
 
 User = get_user_model()
@@ -86,6 +89,30 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_object_name(self, obj: Profile) -> str:
         return "profile"
+    
+
+class EditProfile(LoginRequiredMixin, FormView):
+    form_class = EditProfileForm
+    template_name = "edit_profile.html"
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+
+    def get_success_url(self) -> str:
+        username = self.request.user.username
+        return reverse("profile", kwargs={'user__username':username})
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        user = self.request.user
+        new_initial = {
+            'first_name' : user.profile.first_name,
+            'last_name' : user.profile.last_name,
+            'description' : user.profile.description,
+            'sex' : user.profile.sex,
+            'profile_status' : user.profile.profile_status,
+        }
+        initial.update(new_initial)
+        return initial
 
 
 class SendOTPView(View):

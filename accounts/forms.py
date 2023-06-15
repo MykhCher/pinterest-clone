@@ -1,6 +1,14 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField, SetPasswordForm
-from .models import CustomUser
+from .models import CustomUser, Profile
+
+
+# SEX_CHOICES = [
+#     ('m', 'Male'),
+#     ('f', 'Female'),
+#     ('o', 'Other'),
+# ]
+
 
 class CustomUserCreationForm(UserCreationForm):
     username = UsernameField(
@@ -107,3 +115,18 @@ class CustomPasswordResetForm(SetPasswordForm):
             self.user.save()
         return self.user
     
+
+class EditProfileForm(forms.Form):
+    photo = forms.ImageField(required=False, widget=forms.FileInput)
+
+    class Meta:
+        model = Profile
+        fields = ["first_name", "last_name", "description", "profile_status", "photo", "sex",]
+
+    def __init__(self, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            if visible.name == 'description':
+                visible.field.widget.attrs['class'] = 'edit-profile-input form-control about-input'
+            else:
+                visible.field.widget.attrs['class'] = 'edit-profile-input form-control rounded-pill'
