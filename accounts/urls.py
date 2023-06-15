@@ -12,7 +12,7 @@ urlpatterns = [
     path("activate/<uidb64>/<token>/", views.EmailVerify.as_view(), name="activate"),
 
     path('sent_otp', views.SendOTPView.as_view(), name="send_otp"),
+    path('check_otp', views.CheckOTP.as_view(), name="check_otp"),
     path('forgot_pass', views.ForgotPasswordView.as_view(), name="forgot"),
     path('change_pass/<str:uidb64>/<str:token>', views.ChangePasswordView.as_view(), name="change_pass"),
-    path('check_otp', views.CheckOTP.as_view(), name="check_otp"),
 ]

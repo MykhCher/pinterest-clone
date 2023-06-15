@@ -1,6 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth import get_user_model, login, logout
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -12,8 +12,6 @@ from django.views.generic import FormView, TemplateView, View
 from django.views.generic.detail import DetailView
 from .forms import CustomUserCreationForm, UserLoginForm, CustomPasswordResetForm
 from .models import Profile, ForgotPassword
-
-import time
 
 User = get_user_model()
 
@@ -59,11 +57,15 @@ class UserLoginView(FormView):
         user = form.get_user()
         login(self.request, user)
         return super().form_valid(form)
-    
-    def form_invalid(self, form):
-        errors = form.errors['__all__']
-        print(errors)
-        return super().form_invalid(form)
+
+    def get_success_url(self) -> str:
+        # Check if redirected from LoginRequiredMixin-inherited view.
+        redirect_from_loginmixin = self.request.GET.get("next")
+
+        if redirect_from_loginmixin:
+            return redirect_from_loginmixin
+        
+        return super().get_success_url()
 
 
 class LogoutView(View):
@@ -73,11 +75,13 @@ class LogoutView(View):
         return redirect('login')
     
 
-class ProfileView(DetailView):
+class ProfileView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "profile_detail.html"
     slug_field = "user__username"
     slug_url_kwarg = "user__username"
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
 
 
 class SendOTPView(View):
