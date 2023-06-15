@@ -1,3 +1,4 @@
+from typing import Any, Optional
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,7 +10,7 @@ from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.views.generic import FormView, TemplateView, View
-from django.views.generic.detail import DetailView
+from django.views.generic.detail import DetailView, SingleObjectMixin
 from .forms import CustomUserCreationForm, UserLoginForm, CustomPasswordResetForm
 from .models import Profile, ForgotPassword
 
@@ -82,6 +83,9 @@ class ProfileView(LoginRequiredMixin, DetailView):
     slug_url_kwarg = "user__username"
     redirect_field_name = "next"
     login_url = reverse_lazy("login")
+
+    def get_context_object_name(self, obj: Profile) -> str:
+        return "profile"
 
 
 class SendOTPView(View):

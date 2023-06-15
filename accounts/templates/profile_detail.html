@@ -21,15 +21,15 @@
     <!-- user photo -->
     <img style="object-fit: cover;" width="150" height="150" class="rounded-circle" src="{{ user.profile.photo.url }}" alt="">
     <!-- Username or first and last name -->
-    <h1 class="text-black"><b>{% if user.profile.fname %}{{ user.profile.fname }} {{ user.profile.lname }}{% else %}{{ user.username }}{% endif %}</b></h1>
+    <h1 class="text-black"><b>{% if profile.fname %}{{ profile.fname }} {{ profile.lname }}{% else %}{{ profile.user.username }}{% endif %}</b></h1>
     <!-- username and pronouns -->
-    <p class="text-muted">@{{ user.username }} . {{ user.profile.pronouns }}</p>
+    <p class="text-muted">@{{ profile.user.username }} . {{ profile.sex }}</p>
     <!-- website link and about -->
-    <p><b><a class="text-black text-decoration-none" href="http://{{user.profile.website}}">{{ user.profile.website }}</a></b> . {{ user.profile.about }}</p>
+    {% comment %} <p><b><a class="text-black text-decoration-none" href="http://{{user.profile.website}}">{{ user.profile.website }}</a></b> . {{ user.profile.about }}</p> {% endcomment %}
     <!-- following and followers count -->
-    <span><b>{{ user.following.count }} followers</b></span> .
-    <span><b>{{ user.followers.count }} following</b></span>
-    {% if request.user == user %}
+    {% comment %} <span><b>{{ user.following.count }} followers</b></span> .
+    <span><b>{{ user.followers.count }} following</b></span> {% endcomment %}
+    {% if request.user == profile.user %}
     <!-- edit profile and share btn -->
     <div class="mt-3">
         <a href="#" class="main-btn btn ps-3 pt-2 pb-2 pe-3 text-black ms-1"><b>Share</b></a>
@@ -81,7 +81,7 @@
         <a href="{% url 'placeholder' %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1">
             <b>Created</b>
         </a>
-        <a href="{% url 'profile' user.username %}" class="btn ps-3 pt-2 pb-2 pe-3 text-black ms-1">
+        <a href="{% url 'profile' profile.user.username %}" class="btn ps-3 pt-2 pb-2 pe-3 text-black ms-1">
             <b>Saved</b>
         </a>
         {% endif %}
@@ -112,7 +112,7 @@
     <!-- user boards -->
     <div id="boards" class="row">
         {% for board in boards %}
-            {% if request.user != user %}
+            {% if request.user != profile.user %}
                 <!-- do not show private boards to people -->
                 {% if not board.is_private %}
                     <div class="col-md-2 ms-2 me-4 mb-2">
@@ -123,7 +123,7 @@
                         </a>
                     </div>  
                 {% endif %}
-                {% elif request.user == user %}
+                {% elif request.user == profile.user %}
                     <div class="col-md-2 ms-2 me-4 mb-2">
                         {% comment %} <a href="{% url 'boards:board_detail' username=board.user.username board_name=board.title %}"> {% endcomment %}
                         <a href="{% url 'placeholder' %}">
