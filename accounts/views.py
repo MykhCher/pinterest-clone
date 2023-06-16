@@ -9,7 +9,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import FormView, TemplateView, UpdateView, View
 from django.views.generic.detail import DetailView
 from .forms import (CustomUserCreationForm, 
                     UserLoginForm, 
@@ -91,15 +91,19 @@ class ProfileView(LoginRequiredMixin, DetailView):
         return "profile"
     
 
-class EditProfile(LoginRequiredMixin, FormView):
+class EditProfile(UpdateView):
+    model = Profile
     form_class = EditProfileForm
-    template_name = "edit_profile.html"
-    redirect_field_name = "next"
-    login_url = reverse_lazy("login")
+    template_name = 'edit_profile.html'
+    success_url = reverse_lazy('profile')
 
     def get_success_url(self) -> str:
-        username = self.request.user.username
-        return reverse("profile", kwargs={'user__username':username})
+        user = self.request.user
+        return reverse("profile", kwargs={"user__username": user.username})
+
+    def get_object(self, queryset=None):
+        # Return the current user's profile
+        return self.request.user.profile
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
