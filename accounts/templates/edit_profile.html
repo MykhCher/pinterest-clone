@@ -1,10 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="row">
     <div class="col-md-8 ps-5 pe-5 pt-3 pb-5">
         <form method="post" enctype="multipart/form-data">
+            <div class="row mt-1">
+                <div class="col-md-1 me-4">
+                    <img 
+                        style="object-fit: cover;" 
+                        width="80"
+                        height="80" 
+                        class="rounded-circle" 
+                        src="{{ request.user.profile.photo.url }}" 
+                    />
+                </div>
+            </div>
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="modal-red-btn btn text-white mt-3 w-100">Save</button>
         </form>
     </div>
+</div>
 {% endblock content %}

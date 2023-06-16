@@ -119,7 +119,7 @@ class CustomPasswordResetForm(SetPasswordForm):
 class EditProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ["first_name", "last_name", "description", "profile_status", "photo", "sex",]
+        fields = ["photo", "first_name", "last_name", "description", "profile_status", "sex",]
         widgets = {
             'sex': forms.RadioSelect(choices=SEX_CHOICES),
         }

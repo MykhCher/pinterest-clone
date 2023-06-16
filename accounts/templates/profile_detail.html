@@ -19,13 +19,14 @@
     {% endif %}
     <!-- user public information -->
     <!-- user photo -->
-    <img style="object-fit: cover;" width="150" height="150" class="rounded-circle" src="{{ user.profile.photo.url }}" alt="">
+    <img style="object-fit: cover;" width="150" height="150" class="rounded-circle" src="{{ profile.photo.url }}" alt="">
     <!-- Username or first and last name -->
-    <h1 class="text-black"><b>{% if profile.fname %}{{ profile.fname }} {{ profile.lname }}{% else %}{{ profile.user.username }}{% endif %}</b></h1>
+    <h1 class="text-black"><b>{% if profile.first_name %}{{ profile.first_name }} {{ profile.last_name }}{% else %}{{ profile.user.username }}{% endif %}</b></h1>
     <!-- username and pronouns -->
     <p class="text-muted">@{{ profile.user.username }} . {{ profile.sex }}</p>
-    <!-- website link and about -->
-    {% comment %} <p><b><a class="text-black text-decoration-none" href="http://{{user.profile.website}}">{{ user.profile.website }}</a></b> . {{ user.profile.about }}</p> {% endcomment %}
+    <!-- about and status -->
+    <p><b><i>{{profile.profile_status}}</i></b></p>
+    <p>{{ profile.description }}</p>
     <!-- following and followers count -->
     {% comment %} <span><b>{{ user.following.count }} followers</b></span> .
     <span><b>{{ user.followers.count }} following</b></span> {% endcomment %}
