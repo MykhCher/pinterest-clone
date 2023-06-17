@@ -10,6 +10,9 @@ urlpatterns = [
     path('profile/<str:user__username>', views.ProfileView.as_view(), name="profile"),
     path('edit_profile', views.EditProfile.as_view(), name="edit_profile"),
 
+    path('follow/<str:username>', views.Follow.as_view(), name='follow'),
+    path('unfollow/<str:username>', views.Unfollow.as_view(), name='unfollow'),
+
     path("activate/<uidb64>/<token>/", views.EmailVerify.as_view(), name="activate"),
 
     path('sent_otp', views.SendOTPView.as_view(), name="send_otp"),

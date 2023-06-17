@@ -1,9 +1,15 @@
-from typing import Any, Dict, Optional
-from django.core.exceptions import ImproperlyConfigured
+from typing import Any, Dict
+from django.core.exceptions import (ImproperlyConfigured, 
+                                    ObjectDoesNotExist, 
+                                    MultipleObjectsReturned)
+from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.http import HttpResponseRedirect, HttpRequest, HttpResponse
+from django.http import (HttpResponseRedirect, 
+                        HttpRequest, 
+                        HttpResponse, 
+                        Http404)
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -16,6 +22,8 @@ from .forms import (CustomUserCreationForm,
                     CustomPasswordResetForm,
                     EditProfileForm)
 from .models import Profile, ForgotPassword
+from .models import Follow as FollowModel
+
 
 User = get_user_model()
 
@@ -51,7 +59,6 @@ class RegisterFormView(FormView):
         user.save()
         return super().form_valid(form)
     
-
 class UserLoginView(FormView):
     form_class = UserLoginForm
     success_url = reverse_lazy("placeholder")
@@ -71,7 +78,6 @@ class UserLoginView(FormView):
         
         return super().get_success_url()
 
-
 class LogoutView(View):
 
     def get(self, request: HttpRequest) -> HttpResponseRedirect:
@@ -90,7 +96,14 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_context_object_name(self, obj: Profile) -> str:
         return "profile"
     
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        user = self.get_object().user
 
+        context['is_following'] = self.request.user.followers.filter(following=user).first()
+
+        return context
+    
 class EditProfile(UpdateView):
     model = Profile
     form_class = EditProfileForm
@@ -117,6 +130,42 @@ class EditProfile(UpdateView):
         }
         initial.update(new_initial)
         return initial
+    
+
+class Follow(View):
+
+    def get(self, request: HttpRequest, username: str) -> HttpResponseRedirect:
+        try:
+            user = User.objects.get(username=username)
+        except (ObjectDoesNotExist, MultipleObjectsReturned,):
+            raise Http404
+        
+        check_follow = FollowModel.objects.filter(following=user, follower=request.user)
+
+        if user == request.user:
+            print(request.user)
+            print(user)
+            messages.error(request, 'You can\'t follow yourself.')
+            return redirect(request.META.get('HTTP_REFERER'))
+        
+        if check_follow.exists():
+            messages.error(request, 'You already follow %s' % user.username)
+            return redirect(request.META.get('HTTP_REFERER'))
+        
+        follow = FollowModel.objects.create(following=user, follower=request.user)
+        follow.save()
+        return redirect(request.META.get('HTTP_REFERER'))
+    
+class Unfollow(View):
+
+    def get(self, request: HttpRequest, username: str) -> HttpResponseRedirect:
+        try:
+            user = User.objects.get(username=username)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            raise Http404
+        
+        FollowModel.objects.filter(following=user, follower=request.user).delete()
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class SendOTPView(View):
@@ -135,7 +184,6 @@ class SendOTPView(View):
 
         return render(request, self.template_name, {"email": user.email})
     
-
 class ChangePasswordView(FormView):
     """Password reset form-view."""
     form_class = CustomPasswordResetForm
@@ -185,7 +233,6 @@ class ChangePasswordView(FormView):
         print(form.error_messages)
         return super().form_invalid(form)
 
-
 class CheckOTP(View):
     """Transition view, used to validate the OTP and check for its expiration date."""
 
@@ -211,7 +258,6 @@ class CheckOTP(View):
             uidb64 = urlsafe_base64_encode(force_bytes(user.id))
             safe_code = code.forget_password_otp
             return redirect('change_pass', uidb64=uidb64, token=safe_code)
-
 
 class ForgotPasswordView(TemplateView):
     """Post an email adress to be one-time code receiver."""

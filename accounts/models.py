@@ -76,3 +76,13 @@ class ForgotPassword(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    
+class Follow(models.Model):
+    follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='followers')
+    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='following')
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return f'{self.follower} is following {self.following}'

@@ -157,3 +157,33 @@ header, .first-header {box-shadow: rgba(89, 89, 92, 0.041) 0px 7px 5px 0px;}
 	background-repeat: no-repeat;
 	background-size: cover;
 }
+
+.error-window {
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	padding: 10px;
+	background-color: #fecaca; /* Light red background color */
+  	color: #777777; /* Light grey text color */
+	border-radius: 5px;
+	display: none; /* Hide the window by default */
+  }
+  
+  .close-button {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+	font-size: 20px;
+  }
+  
+  .error-message-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+  }
+  
+  .error-message {
+	margin-bottom: 5px;
+  }
+  

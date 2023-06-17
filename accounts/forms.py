@@ -129,3 +129,5 @@ class EditProfileForm(forms.ModelForm):
         for visible in self.visible_fields():
             if visible.name != 'description' and visible.name != 'sex':
                 visible.field.widget.attrs['class'] = 'edit-profile-input form-control rounded-pill'
+            elif visible.name == 'description':
+                visible.field.widget.attrs['class'] = 'edit-profile-input form-control about-input'
