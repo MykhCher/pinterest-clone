@@ -17,6 +17,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.views.generic import FormView, TemplateView, UpdateView, View
 from django.views.generic.detail import DetailView
+
 from .forms import (CustomUserCreationForm, 
                     UserLoginForm, 
                     CustomPasswordResetForm,
@@ -61,7 +62,7 @@ class RegisterFormView(FormView):
     
 class UserLoginView(FormView):
     form_class = UserLoginForm
-    success_url = reverse_lazy("placeholder")
+    success_url = reverse_lazy("home")
     template_name = "login.html"
 
     def form_valid(self, form):
@@ -104,11 +105,13 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         return context
     
-class EditProfile(UpdateView):
+class EditProfile(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = EditProfileForm
     template_name = 'edit_profile.html'
     success_url = reverse_lazy('profile')
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
 
     def get_success_url(self) -> str:
         user = self.request.user
@@ -132,7 +135,9 @@ class EditProfile(UpdateView):
         return initial
     
 
-class Follow(View):
+class Follow(LoginRequiredMixin, View):
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
 
     def get(self, request: HttpRequest, username: str) -> HttpResponseRedirect:
         try:
@@ -156,7 +161,9 @@ class Follow(View):
         follow.save()
         return redirect(request.META.get('HTTP_REFERER'))
     
-class Unfollow(View):
+class Unfollow(LoginRequiredMixin, View):
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
 
     def get(self, request: HttpRequest, username: str) -> HttpResponseRedirect:
         try:
@@ -207,7 +214,7 @@ class ChangePasswordView(FormView):
             token = kwargs['token']
             # Handle posted form data.
             if request.method.lower() == 'post':
-                form = CustomPasswordResetForm(user=self.user, data=request.POST)    # u55VH29Uhy$2
+                form = CustomPasswordResetForm(user=self.user, data=request.POST)
                 if form.is_valid():
                     return self.form_valid(form)
                 elif not form.is_valid():
