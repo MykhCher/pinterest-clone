@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'accounts.apps.AccountsConfig',
     'core.apps.CoreConfig',
-    'boards.apps.Boards',
+    'boards.apps.BoardsConfig',
+    'pins.apps.PinsConfig',
 ]
 
 MIDDLEWARE = [

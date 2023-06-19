@@ -92,8 +92,8 @@
         <div class="modal-content ps-5 pb-5 pe-5">
             <h3 class="mt-4 mb-3"><b>Create Board</b></h3>
             <div class="row">
-                {% comment %} <form method="post" action="{% url 'boards:create_board' %}"> {% endcomment %}
-                <form method="post" action="#">
+                <form method="post" action="{% url 'boards:create_board' %}">
+                {% comment %} <form method="post" action="#"> {% endcomment %}
                     {% csrf_token %}
                     <label style="float: left;" for="">Name</label>
                     {{ create_board_form.title }}                        

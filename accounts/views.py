@@ -24,6 +24,7 @@ from .forms import (CustomUserCreationForm,
                     EditProfileForm)
 from .models import Profile, ForgotPassword
 from .models import Follow as FollowModel
+from boards.forms import CreateBoardForm
 
 
 User = get_user_model()
@@ -65,7 +66,7 @@ class UserLoginView(FormView):
     success_url = reverse_lazy("home")
     template_name = "login.html"
 
-    def form_valid(self, form):
+    def form_valid(self, form) -> HttpResponseRedirect:
         user = form.get_user()
         login(self.request, user)
         return super().form_valid(form)
@@ -102,6 +103,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
         user = self.get_object().user
 
         context['is_following'] = self.request.user.followers.filter(following=user).first()
+        context['create_board_form'] = CreateBoardForm()
 
         return context
     
@@ -117,7 +119,7 @@ class EditProfile(LoginRequiredMixin, UpdateView):
         user = self.request.user
         return reverse("profile", kwargs={"user__username": user.username})
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None) -> Profile:
         # Return the current user's profile
         return self.request.user.profile
 
