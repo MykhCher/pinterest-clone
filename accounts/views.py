@@ -23,7 +23,7 @@ from .forms import (CustomUserCreationForm,
                     CustomPasswordResetForm,
                     EditProfileForm)
 from .models import Profile, ForgotPassword
-from .models import Follow as FollowModel
+from .models import Follow as FollowModel   # to not be confued with Follow view on line 140
 from boards.forms import CreateBoardForm
 
 
