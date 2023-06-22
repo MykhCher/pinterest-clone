@@ -1,16 +1,19 @@
 from typing import Any, Dict
 from django.core.exceptions import (ImproperlyConfigured, 
                                     ObjectDoesNotExist, 
-                                    MultipleObjectsReturned)
+                                    MultipleObjectsReturned,
+                                    PermissionDenied)
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import (HttpResponseRedirect, 
                         HttpRequest, 
                         HttpResponse, 
                         Http404)
-from django.shortcuts import redirect, render
+from django.http.response import HttpResponseRedirect
+from django.shortcuts import redirect, render, resolve_url
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -80,11 +83,26 @@ class UserLoginView(FormView):
         
         return super().get_success_url()
 
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
 
     def get(self, request: HttpRequest) -> HttpResponseRedirect:
         logout(request)
         return redirect('login')
+    
+    def handle_no_permission(self) -> HttpResponseRedirect:
+        """Overwrite base method in order not to redirect back."""
+        if self.raise_exception or self.request.user.is_authenticated:
+            raise PermissionDenied(self.get_permission_denied_message())
+        
+        resolved_login_url = resolve_url(self.get_login_url())
+        path = self.request.get_full_path()
+
+        return redirect_to_login(
+            path,
+            resolved_login_url,
+        )
+
     
 
 class ProfileView(LoginRequiredMixin, DetailView):
@@ -142,18 +160,18 @@ class Follow(LoginRequiredMixin, View):
     login_url = reverse_lazy("login")
 
     def get(self, request: HttpRequest, username: str) -> HttpResponseRedirect:
+        # Retrieve user from database, using username.
         try:
             user = User.objects.get(username=username)
         except (ObjectDoesNotExist, MultipleObjectsReturned,):
             raise Http404
         
-        check_follow = FollowModel.objects.filter(following=user, follower=request.user)
-
         if user == request.user:
-            print(request.user)
-            print(user)
             messages.error(request, 'You can\'t follow yourself.')
             return redirect(request.META.get('HTTP_REFERER'))
+        
+        # Check if user already follows.
+        check_follow = FollowModel.objects.filter(following=user, follower=request.user)
         
         if check_follow.exists():
             messages.error(request, 'You already follow %s' % user.username)
