@@ -1,5 +1,5 @@
 from typing import Any
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import Http404, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DetailView
@@ -23,7 +23,7 @@ class CreateBoardView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditBoardView(LoginRequiredMixin, UpdateView):
+class EditBoardView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Board
     form_class = EditBoardForm
     template_name = "edit_board.html"
@@ -54,10 +54,17 @@ class EditBoardView(LoginRequiredMixin, UpdateView):
         initial.update(new_initial)
         return initial
     
+    def test_func(self) -> bool:
+        """Method from `UserPassesTestMixin`. Tests if user, 
+        that made request is object's owner.
+        """
+        obj = self.get_object()
+        return obj.user == self.request.user
+    
 class DetailBoardView(LoginRequiredMixin, DetailView):
     model = Board
     template_name = "detail_board.html"
-    slug_field = "name"
-    slug_url_kwarg = "name"
+    slug_field = "title"
+    slug_url_kwarg = "board_name"
     login_url = reverse_lazy("login")
     redirect_field_name = "next"
