@@ -12,8 +12,8 @@
         </a>
         <ul class="dropdown-menu" aria-labelledby="dropdownUser1">
             <li><a id="createBoardBtn" class="dropdown-item" href="#">Create Board</a></li>
-            {% comment %} <li><a class="dropdown-item" href="{% url 'pins:create_pin' %}">Create Pin</a></li> {% endcomment %}
-            <li><a class="dropdown-item" href="{% url 'placeholder' %}">Create Pin</a></li>
+            <li><a class="dropdown-item" href="{% url 'create_pin' %}">Create Pin</a></li>
+            {% comment %} <li><a class="dropdown-item" href="{% url 'placeholder' %}">Create Pin</a></li> {% endcomment %}
         </ul>
     </div>
     {% endif %}
@@ -148,7 +148,7 @@
     <div class="row">
         {% for pin in created_pins %}
         <div class="img-container col-md-2 ms-2 me-4 mb-3">
-            <a href="{% url 'pins:pin_detail' pin.id %}">
+            <a href="{% url 'pin_detail' pin.id %}">
                 {% if pin.get_type == 'video' %}
                     <video autoplay muted loop class="video" >
                         <source src="{{ pin.file.url }}" >

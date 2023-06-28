@@ -18,7 +18,7 @@
     <div class="col-md-2"></div>
 </div>
 <div class="row mt-5">
-    {% for pin in pins %}
+    {% for pin in board.pins.all %}
     <div class="img-container col-md-2 mb-3">
         <a href="{% url 'pin_detail' pin.id %}">
             {% if pin.get_type == 'video' %}

@@ -7,14 +7,14 @@ from boards.models import Board
 class CreatePinForm(ModelForm):
     class Meta:
         model = Pin
-        fields = ['board', 'file', 'title', 'description', 'link']
+        fields = ['board', 'file', 'title', 'description']
 
     def __init__(self, user, *args, **kwargs):
         super(CreatePinForm, self).__init__(*args, **kwargs)
         self.fields['board'].queryset = Board.objects.filter(user=user)
         self.fields['title'].widget.attrs['placeholder'] = 'Add a Title'
         self.fields['description'].widget.attrs['placeholder'] = 'Tell everyone what your pin is about..'
-        self.fields['link'].widget.attrs['placeholder'] = 'Add a destination link'
+        # self.fields['link'].widget.attrs['placeholder'] = 'Add a destination link'
         for visible in self.visible_fields():
             if visible.name == 'description':
                 visible.field.widget.attrs['class'] = 'description-input border form-control'
@@ -40,14 +40,14 @@ class SaveToBoard(ModelForm):
 class EditPinForm(ModelForm):
     class Meta:
         model = Pin
-        fields = ['board', 'title', 'description', 'link']
+        fields = ['board', 'title', 'description']
 
     def __init__(self, user, *args, **kwargs):
         super(EditPinForm, self).__init__(*args, **kwargs)
         self.fields['board'].queryset = Board.objects.filter(user=user)
         self.fields['title'].widget.attrs['placeholder'] = 'Add a Title'
         self.fields['description'].widget.attrs['placeholder'] = 'Tell everyone what your pin is about..'
-        self.fields['link'].widget.attrs['placeholder'] = 'Add a destination link'
+        # self.fields['link'].widget.attrs['placeholder'] = 'Add a destination link'
         for visible in self.visible_fields():
             if visible.name == 'description':
                 visible.field.widget.attrs['class'] = 'description-input border form-control'

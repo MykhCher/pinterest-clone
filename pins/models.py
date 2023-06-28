@@ -17,7 +17,7 @@ class Pin(models.Model):
     )
     file = models.FileField(upload_to='pins')
     title = models.CharField(max_length=250)
-    link = models.CharField(max_length=250)
+    # link = models.CharField(max_length=250)
     description = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
 

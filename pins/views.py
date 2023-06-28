@@ -1,13 +1,14 @@
 from typing import Any, Dict
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, DeleteView, DetailView
 
-from .forms import CreatePinForm, EditPinForm
+from .forms import CreatePinForm, EditPinForm, SaveToBoard, CommentForm
 from .models import Pin
 from boards.forms import CreateBoardForm
+from boards.models import Board
 from accounts.models import Profile
 
 
@@ -30,6 +31,10 @@ class CreatePinView(LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         kwargs.setdefault('user', self.request.user)
         return kwargs
+    
+    def form_valid(self, form: CreateBoardForm) -> HttpResponse:
+        form.instance.user = self.request.user
+        return super().form_valid(form)
     
 class EditPinView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Pin
@@ -89,3 +94,53 @@ class CreatedPins(LoginRequiredMixin, DetailView):
         context.update(new_context)
 
         return context
+    
+class DetailPinView(LoginRequiredMixin, DetailView):
+    model = Pin
+    template_name = "detail_pin.html"
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context =  super().get_context_data(**kwargs)
+        pin = self.model.objects.get(pk=self.kwargs['pk'])
+        is_following = self.request.user.followers.filter(following=pin.user).first()
+
+        new_context = {
+            'pin' : pin,
+            'save_to_board_form': SaveToBoard(self.request.user, instance=pin),
+            'edit_form' : EditPinForm(self.request.user, instance=pin),
+            'comment_form' : CommentForm(),
+            'is_following' : is_following,
+            'related_pins' : self.get_related_pins(self.kwargs['pk'])
+        }
+
+        context.update(new_context)
+
+        return context
+    
+    def get_related_pins(self, pin_pk: int) -> set:
+        related_pins = []
+        boards = Board.objects.filter().all() 
+
+        # Get all boards that contains the current pin.
+        related_board = [
+            board for board in boards if board.pins.filter(id=pin_pk).first()
+        ] 
+
+        # Get all pins in related boards,
+        # The output may be a nested list of queryset objects.
+        related_pins_lists = [board.pins.all() for board in related_board]
+
+        # Make one list out of nested lists of pins.
+        for i in range(len(related_pins_lists)):
+            for p in related_pins_lists[i]:
+                related_pins.append(p)
+
+        # Remove current pin from related pins.
+        for pin in related_pins:
+            if pin.id == pin_pk:
+                related_pins.remove(pin) 
+        
+        return set(related_pins)
+    
