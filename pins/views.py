@@ -1,12 +1,14 @@
-from typing import Any
+from typing import Any, Dict
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView, DetailView
 
 from .forms import CreatePinForm, EditPinForm
 from .models import Pin
+from boards.forms import CreateBoardForm
+from accounts.models import Profile
 
 
 User = get_user_model()
@@ -61,3 +63,29 @@ class DeletePinView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         obj = self.get_object()
         return obj.user == self.request.user
+    
+class CreatedPins(LoginRequiredMixin, DetailView):
+    model = Profile
+    template_name = "profile_detail.html"
+    slug_field = "user__username"
+    slug_url_kwarg = "username"
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+
+    def get_context_object_name(self, obj: Profile) -> str:
+        return "profile"
+    
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        user = self.get_object().user
+        pins = user.pin_user.all()
+
+        new_context = {
+            'is_following': self.request.user.followers.filter(following=user).first(),
+            'create_board_form': CreateBoardForm(),
+            'created_pins': pins,
+        }
+
+        context.update(new_context)
+
+        return context

@@ -131,6 +131,6 @@ dmypy.json
 .pyre/
 
 # Media (profile, pin and boards images)
-*boards
+*media/boards
 *profiles
-*pins
+*media/pins

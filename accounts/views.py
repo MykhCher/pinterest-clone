@@ -26,7 +26,7 @@ from .forms import (CustomUserCreationForm,
                     CustomPasswordResetForm,
                     EditProfileForm)
 from .models import Profile, ForgotPassword
-from .models import Follow as FollowModel   # to not be confued with Follow view
+from .models import Follow as FollowModel   # to not be confused with Follow view
 from boards.forms import CreateBoardForm
 
 
@@ -122,6 +122,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         context['is_following'] = self.request.user.followers.filter(following=user).first()
         context['create_board_form'] = CreateBoardForm()
+        context['boards'] = user.board.all()
 
         return context
     

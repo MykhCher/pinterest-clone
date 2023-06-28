@@ -1,7 +1,7 @@
 from typing import Any
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DetailView
@@ -19,6 +19,10 @@ class CreateBoardView(LoginRequiredMixin, CreateView):
     def get_success_url(self) -> str:
         user = self.request.user
         return reverse('profile', kwargs={"user__username":user.username})
+    
+    def form_valid(self, form: CreateBoardForm) -> HttpResponse:
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class EditBoardView(LoginRequiredMixin, UpdateView):
