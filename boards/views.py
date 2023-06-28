@@ -1,8 +1,6 @@
 from typing import Any
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, CreateView, DetailView
 
@@ -38,8 +36,8 @@ class EditBoardView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None) -> Board:
         try:
-            return self.model.objects.get(pk=self.kwargs['name'])
-        except ObjectDoesNotExist:
+            return self.model.objects.get(title=self.kwargs['name'])
+        except self.model.DoesNotExist:
             raise Http404
 
     def get_initial(self) -> dict[str, Any]:
