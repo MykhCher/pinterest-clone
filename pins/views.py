@@ -1,12 +1,13 @@
 from typing import Any, Dict
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpRequest
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, DeleteView, DetailView
 
 from .forms import CreatePinForm, EditPinForm, SaveToBoard, CommentForm
-from .models import Pin
+from .models import Pin, Comment
 from boards.forms import CreateBoardForm
 from boards.models import Board
 from accounts.models import Profile
@@ -68,33 +69,7 @@ class DeletePinView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         obj = self.get_object()
         return obj.user == self.request.user
-    
-class CreatedPins(LoginRequiredMixin, DetailView):
-    model = Profile
-    template_name = "profile_detail.html"
-    slug_field = "user__username"
-    slug_url_kwarg = "username"
-    redirect_field_name = "next"
-    login_url = reverse_lazy("login")
-
-    def get_context_object_name(self, obj: Profile) -> str:
-        return "profile"
-    
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        user = self.get_object().user
-        pins = user.pin_user.all()
-
-        new_context = {
-            'is_following': self.request.user.followers.filter(following=user).first(),
-            'create_board_form': CreateBoardForm(),
-            'created_pins': pins,
-        }
-
-        context.update(new_context)
-
-        return context
-    
+ 
 class DetailPinView(LoginRequiredMixin, DetailView):
     model = Pin
     template_name = "detail_pin.html"
@@ -143,4 +118,71 @@ class DetailPinView(LoginRequiredMixin, DetailView):
                 related_pins.remove(pin) 
         
         return set(related_pins)
+       
+
+class CreatedPins(LoginRequiredMixin, DetailView):
+    model = Profile
+    template_name = "profile_detail.html"
+    slug_field = "user__username"
+    slug_url_kwarg = "username"
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+
+    def get_context_object_name(self, obj: Profile) -> str:
+        return "profile"
+    
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        user = self.get_object().user
+        pins = user.pin_user.all()
+
+        new_context = {
+            'is_following': self.request.user.followers.filter(following=user).first(),
+            'create_board_form': CreateBoardForm(),
+            'created_pins': pins,
+        }
+
+        context.update(new_context)
+
+        return context
+    
+
+class CreateCommentView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+    
+    def get_success_url(self) -> str:
+        return self.request.META.get("HTTP_REFERER")
+    
+    def form_valid(self, form = CommentForm) -> HttpResponse:
+        comment = form.save(commit=False)
+        comment.user = self.request.user
+        try:
+            comment.pin = Pin.objects.get(pk=self.kwargs.get("pk"))
+        except self.model.DoesNotExist:
+            return Http404
+        comment.save()
+        return super().form_valid(form)
+    
+class DeleteCommentView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    redirect_field_name = "next"
+    login_url = reverse_lazy("login")
+
+    def get_success_url(self) -> str:
+        return self.request.META.get("HTTP_REFERER")
+
+    def test_func(self) -> bool:
+        """Method from `UserPassesTestMixin`. Tests if user, 
+        that made request is object's owner.
+        """
+        obj = self.get_object()
+        return obj.user == self.request.user
+    
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.object = self.get_object()
+        self.object.delete()
+        return redirect(self.get_success_url())
     
