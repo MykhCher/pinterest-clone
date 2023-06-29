@@ -36,8 +36,10 @@
                 </svg>
             </a>
             <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                {% comment %} <li><a id="editPinBtn" class="dropdown-item" href="{% url 'remove_from_board' pin.id board.name %}">Remove From Board</a></li> {% endcomment %}
-                <li><a id="editPinBtn" class="dropdown-item" href=#>Remove From Board</a></li>
+                <form method="post" action="{% url 'remove_from_board' pin.id board.title %}">
+                    {% csrf_token %}
+                    <li><button id="editPinBtn" class="dropdown-item" type="submit">Remove From Board</a></li>
+                </form>
             </ul>
         </div>
     </div>

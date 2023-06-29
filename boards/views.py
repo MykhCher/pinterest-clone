@@ -1,8 +1,9 @@
 from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpRequest
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, DetailView, FormView
+from django.views.generic import UpdateView, CreateView, DetailView, FormView, View
 
 from pins.forms import SaveToBoard
 from pins.models import Pin
@@ -71,8 +72,11 @@ class DetailBoardView(LoginRequiredMixin, DetailView):
     login_url = reverse_lazy("login")
     redirect_field_name = "next"
 
-class SaveToBoard(FormView):
+
+class SaveToBoard(LoginRequiredMixin, FormView):
     form_class = SaveToBoard
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
     
     def get_success_url(self) -> str:
         """Redirect back to a previous page."""
@@ -92,3 +96,31 @@ class SaveToBoard(FormView):
         board = Board.objects.get(id=self.request.POST.get('board'))
         board.pins.add(pin)
         return super().form_valid(form)
+
+class RemoveFromBoard(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = reverse_lazy("login")
+    redirect_field_name = "next"
+
+    def get_success_url(self) -> str:
+        return self.request.META.get("HTTP_REFERER")
+     
+    def test_func(self) -> bool:
+        """Method from `UserPassesTestMixin`. Tests if user, 
+        that made request is object's owner.
+        """
+        try:
+            obj = Board.objects.get(title=self.kwargs.get('board_name'))
+        except Board.DoesNotExist:
+            return Http404
+
+        return obj.user == self.request.user
+    
+    def post(self, request: HttpRequest, pin_pk: int, board_name: str) -> HttpResponse:
+        try:
+            pin = Pin.objects.get(pk=pin_pk)
+            board = Board.objects.get(title=board_name)
+        except (Pin.DoesNotExist, Board.DoesNotExist):
+            return Http404
+        
+        board.pins.remove(pin)
+        return redirect(self.get_success_url())
