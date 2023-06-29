@@ -69,7 +69,7 @@
     <!-- saved and created tab -->
     <div class="mt-5 mb-5">
         {% if '/created/' in request.get_full_path  %}
-            <a href="{% url 'created_pins' user.username %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1">
+            <a href="{% url 'created_pins' profile.user.username %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1">
             {% comment %} <a href="{% url 'placeholder' %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1"> {% endcomment %}
                 <b>Created</b>
             </a>
@@ -79,11 +79,11 @@
 
         
         {% else %}
-            <a href="{% url 'created_pins' user.username %}" class="btn ps-3 pt-2 pb-2 pe-3 text-black ms-1">
+            <a href="{% url 'created_pins' profile.user.username %}" class="btn ps-3 pt-2 pb-2 pe-3 text-black ms-1">
             {% comment %} <a href="{% url 'placeholder' %}" class="btn ps-3 pt-2 pb-2 pe-3 text-black ms-1"> {% endcomment %}
                 <b>Created</b>
             </a>
-            <a href="{% url 'profile' user.username %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1">
+            <a href="{% url 'profile' profile.user.username %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1">
             {% comment %} <a href="{% url 'placeholder' %}" class="btn-select-border text-decoration-none ps-3 pt-2 pb-2 pe-3 text-black ms-1"> {% endcomment %}
                 <b>Saved</b>
             </a>
@@ -119,8 +119,8 @@
                 <!-- do not show private boards to people -->
                 {% if not board.is_private %}
                     <div class="col-md-2 ms-2 me-4 mb-2">
-                        {% comment %} <a href="{% url 'boards:board_detail' username=board.user.username board_name=board.title %}"> {% endcomment %}
-                        <a href="{% url 'placeholder' %}">
+                        <a href="{% url 'board_detail' board_name=board.title %}">
+                        {% comment %} <a href="{% url 'placeholder' %}"> {% endcomment %}
                             <img style="object-fit: cover; border-radius: 20px;" height="200" width="200" src="{{ board.cover.url }}">
                             <h4 class="mt-2 text-black" style="float: left;"><b>{{ board.title }}</b></h4>
                         </a>
