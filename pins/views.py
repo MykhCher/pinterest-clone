@@ -53,6 +53,11 @@ class EditPinView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         """
         obj = self.get_object()
         return obj.user == self.request.user
+    
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs.setdefault('user', self.request.user)
+        return kwargs
 
 class DeletePinView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Pin
