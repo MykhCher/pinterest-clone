@@ -1,6 +1,7 @@
 from rest_framework import routers
 
-from .views import PinViewSet
+from restapi import views
 
 router = routers.DefaultRouter()
-router.register(r'pins', PinViewSet, basename='api-pins')
+router.register(r'my_pins', views.MyPinViewSet, basename='api-pins')
+router.register(r'pins', views.AllPinsViewset, basename='api-all-pins')
