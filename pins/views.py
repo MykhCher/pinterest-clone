@@ -161,7 +161,7 @@ class CreateCommentView(LoginRequiredMixin, CreateView):
     def get_success_url(self) -> str:
         return self.request.META.get("HTTP_REFERER")
     
-    def form_valid(self, form = CommentForm) -> HttpResponse:
+    def form_valid(self, form: CommentForm) -> HttpResponse:
         comment = form.save(commit=False)
         comment.user = self.request.user
         try:
