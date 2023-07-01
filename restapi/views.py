@@ -5,9 +5,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from accounts.models import Profile
 from pins.models import Pin
 from boards.models import Board
-from .serializers import PinSerializer
+from .serializers import PinSerializer, ProfileSerializer
  
 
 class MyPinViewSet(viewsets.ModelViewSet):
@@ -104,3 +105,10 @@ class PinToBoard(views.APIView):
             }
         return Response(response)
     
+
+class ProfileViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = Profile.objects.all().order_by('pk')
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
+    serializer_class = ProfileSerializer    
+    max_page_size = 100
