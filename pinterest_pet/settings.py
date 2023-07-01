@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'boards.apps.BoardsConfig',
     'pins.apps.PinsConfig',
     'restapi.apps.RestapiConfig',
+    'apiauth.apps.ApiauthConfig',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -156,8 +157,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'apiauth.authentication.ExpiringTokenAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE' : 20,
 }
+
+TOKEN_EXPIRED_AFTER_SECONDS = 86400

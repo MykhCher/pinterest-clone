@@ -166,7 +166,7 @@ class CreateCommentView(LoginRequiredMixin, CreateView):
         comment.user = self.request.user
         try:
             comment.pin = Pin.objects.get(pk=self.kwargs.get("pk"))
-        except self.model.DoesNotExist:
+        except Pin.DoesNotExist:
             return Http404
         comment.save()
         return super().form_valid(form)
