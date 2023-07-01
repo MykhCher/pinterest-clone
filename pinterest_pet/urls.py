@@ -27,6 +27,7 @@ urlpatterns = [
     path('pin/', include("pins.urls")),
     path('board/', include("boards.urls")),
     path('api/', include(router.urls)),
+    path('api/', include("restapi.urls")),
 
     path('api-auth/', include("apiauth.urls")),
 ]
