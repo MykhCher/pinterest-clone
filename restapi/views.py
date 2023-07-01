@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models.query import QuerySet
 
 from rest_framework import viewsets, permissions, views
@@ -5,7 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from accounts.models import Profile
+from accounts.models import Profile, Follow, CustomUser
 from pins.models import Pin
 from boards.models import Board
 from .serializers import PinSerializer, ProfileSerializer
@@ -112,3 +113,60 @@ class ProfileViewset(viewsets.ReadOnlyModelViewSet):
     pagination_class = PageNumberPagination
     serializer_class = ProfileSerializer    
     max_page_size = 100
+
+
+class FollowEndpoint(views.APIView):
+
+    def post(self, request: Request, format=None) -> Response:
+        """
+        Follow given user.
+        """
+        try:
+            followed = get_user_model().objects.get(username=request.data.get('username'))
+            follower = request.user
+        except get_user_model().DoesNotExist:
+            message = {"message": "Username query didn't give any results."}
+            return Response(data=message, status=404)
+
+        response = {
+            "user": followed.username,
+            "new_follower": follower.username,
+        }
+        follow_obj = Follow.objects.filter(follower=follower, following=followed)
+
+        if not follow_obj.exists():
+            Follow.objects.create(follower=follower, following=followed)
+            response.setdefault("message", "Now you are following %s." % followed.username)
+            status_code = 201   # Created
+        else:
+            response.setdefault("message", "Condition already satisfied.")
+            status_code = 200   # OK
+
+        return Response(response, status_code)
+    
+    def delete(self, request: Request, format = None) -> Response:
+        """
+        Unfollow thhe user.
+        """
+        try:
+            followed = get_user_model().objects.get(username=request.data.get('username'))
+            follower = request.user
+        except get_user_model().DoesNotExist:
+            message = {"message": "Username query didn't give any results."}
+            return Response(data=message, status=404)
+
+        response = {
+            "user": followed.username,
+            "new_follower": follower.username,
+        }
+        follow_obj = Follow.objects.filter(follower=follower, following=followed)
+
+        if follow_obj.exists():
+            follow_obj.delete()
+            response.setdefault("message", "Now you are not following %s." % followed.username)
+            status_code = 201   # Created
+        else:
+            response.setdefault("message", "Condition already satisfied.")
+            status_code = 200   # OK
+
+        return Response(response, status_code)

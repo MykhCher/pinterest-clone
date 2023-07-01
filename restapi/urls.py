@@ -11,5 +11,6 @@ router.register(r'profile', views.ProfileViewset, basename='profiles')
 
 urlpatterns = [
     path("pin_in_board/<int:pin_pk>/<str:board_name>/", views.PinToBoard.as_view(), name="pin_in_board"),
+    path("follow/", views.FollowEndpoint.as_view(), name="follow_api")
 ]
 
