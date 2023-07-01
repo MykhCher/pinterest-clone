@@ -17,7 +17,6 @@ def user_deactivate(sender, instance: CustomUser, created: bool, **kwargs) -> No
 @receiver(post_save, sender=CustomUser)
 def create_profile(sender, instance: CustomUser, created: bool, **kwargs) -> None:
     """Creating profile instance, linked to saved User."""
-    print(f"Caught 'post_save' singal. Created attribute is {created}.")
     if created:
         Profile.objects.create(user=instance)
 

@@ -13,11 +13,10 @@
         <h3 class="mt-4 mb-3"><b>Reset password</b></h3>
         <p class="mt-4 mb-3"><i>Please, enter your email adress:</i></p>
         <div class="row">
-            <form method="post" action={% url 'check_otp' %}>
+            <form method="post" action={% url 'send_otp' %}>
                 {% csrf_token %}
-                <input type="hidden" name="sent_email" value={{email}}>
                 <div class="">
-                    <input class="form-control rounded-pill" type="text" name="otp" placeholder="Enter your email here">
+                    <input class="form-control rounded-pill" type="text" name="email" placeholder="Enter your email here">
                 </div>
                 <input class="modal-red-btn btn text-white mt-3 w-100" type="submit" value="Send code">
             </form>
