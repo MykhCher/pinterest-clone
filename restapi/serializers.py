@@ -16,3 +16,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['pk', 'user', 'first_name', 'last_name', 'sex', 'description', 'profile_status', 'photo']
+
+
+class ProfileEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name', 'profile_status', 'description', 'sex']

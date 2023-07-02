@@ -6,10 +6,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from accounts.models import Profile, Follow, CustomUser
+from accounts.models import Profile, Follow
 from pins.models import Pin
 from boards.models import Board
-from .serializers import PinSerializer, ProfileSerializer
+from .serializers import PinSerializer, ProfileSerializer, ProfileEditSerializer
  
 
 class MyPinViewSet(viewsets.ModelViewSet):
@@ -107,12 +107,29 @@ class PinToBoard(views.APIView):
         return Response(response)
     
 
-class ProfileViewset(viewsets.ReadOnlyModelViewSet):
+class ProfileViewset(viewsets.ModelViewSet):
     queryset = Profile.objects.all().order_by('pk')
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = PageNumberPagination
-    serializer_class = ProfileSerializer    
+    serializer_class = ProfileSerializer
+    edit_serializer = ProfileEditSerializer
     max_page_size = 100
+
+    def partial_update(self, request: Request, pk: int, format=None) -> Response:
+        instance = self.get_object()
+
+        # Check if requested user owns this profile.
+        if instance.user != request.user:
+            return Response({"message" : "You are not allowed to do this!"}, 403)
+        
+        # Serialize recieved data, update profile.
+        serializer = self.edit_serializer(instance, request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        data = self.serializer_class(instance).data
+        data.setdefault("message", "Profile successfully updated!")
+        return Response(data)
 
 
 class FollowEndpoint(views.APIView):
