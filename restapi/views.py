@@ -109,11 +109,22 @@ class PinToBoard(views.APIView):
 
 class ProfileViewset(viewsets.ModelViewSet):
     queryset = Profile.objects.all().order_by('pk')
-    permission_classes = [permissions.IsAuthenticated]
+    permitted_actions = ['list', 'retrieve', 'partial_update']
     pagination_class = PageNumberPagination
     serializer_class = ProfileSerializer
     edit_serializer = ProfileEditSerializer
     max_page_size = 100
+
+    def get_permissions(self) -> list:
+        """
+        Allow actions mentioned in `self.permitted_actions` only. 
+        """
+        if self.action not in self.permitted_actions:
+            permission_classes = [permissions.IsAdminUser]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
 
     def partial_update(self, request: Request, pk: int, format=None) -> Response:
         instance = self.get_object()
