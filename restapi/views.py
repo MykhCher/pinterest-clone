@@ -197,7 +197,7 @@ class FollowEndpoint(views.APIView):
         if follow_obj.exists():
             follow_obj.delete()
             response.setdefault("message", "Now you are not following %s." % followed.username)
-            status_code = 201   # Created
+            status_code = 204   # No content
         else:
             response.setdefault("message", "Condition already satisfied.")
             status_code = 200   # OK
@@ -225,4 +225,37 @@ class BoardViewset(viewsets.ModelViewSet):
 
         return Response(serializer.data, 201)
     
-    
+    def destroy(self, request: Request, pk: int, *args, **kwargs) -> Response:
+        """
+        Response for DELETE requests.
+        """
+
+        # Retrieve and delete object.
+        instance = self.get_object()
+        self.perform_destroy(instance)
+
+        return Response(
+            data={
+                "title" : instance.title,
+                "message" : "Board successfully removed."
+            },
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Provide response for PATCH requests.
+        """
+
+        # Enable partial updates.
+        partial = kwargs.setdefault('partial', True)
+
+        # Retrieve object.
+        instance = self.get_object()
+
+        # Serialize and edit object.
+        serializer = BoardCreateSerializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Return response with serialized object data.
+        return Response(data=serializer.data)
