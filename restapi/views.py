@@ -6,10 +6,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from .permissions import IsOwnerOrReadOnly
+from .serializers import (PinSerializer, 
+                          ProfileSerializer, 
+                          ProfileEditSerializer, 
+                          BoardSerializer,
+                          BoardCreateSerializer)
 from accounts.models import Profile, Follow
 from pins.models import Pin
 from boards.models import Board
-from .serializers import PinSerializer, ProfileSerializer, ProfileEditSerializer
  
 
 class MyPinViewSet(viewsets.ModelViewSet):
@@ -198,3 +203,26 @@ class FollowEndpoint(views.APIView):
             status_code = 200   # OK
 
         return Response(response, status_code)
+
+
+class BoardViewset(viewsets.ModelViewSet):
+    queryset = Board.objects.all().order_by('-id')
+    permission_classes = [IsOwnerOrReadOnly]
+    pagination_class = PageNumberPagination
+    serializer_class = BoardSerializer
+    max_page_size = 100
+
+    def create(self, request: Request, format = None, *args, **kwargs) -> Response:
+        """
+        Create a board, owned by a request user.
+        """
+        data = request.data.copy()
+        data.setdefault("user", request.user.pk)
+
+        serializer = BoardCreateSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return Response(serializer.data, 201)
+    
+    
