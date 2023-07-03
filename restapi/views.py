@@ -11,9 +11,12 @@ from .serializers import (PinSerializer,
                           ProfileSerializer, 
                           ProfileEditSerializer, 
                           BoardSerializer,
-                          BoardCreateSerializer)
+                          BoardCreateSerializer,
+                          CommentSerializer,
+                          CommentEditSerializer,
+                          )
 from accounts.models import Profile, Follow
-from pins.models import Pin
+from pins.models import Pin, Comment
 from boards.models import Board
  
 
@@ -259,3 +262,124 @@ class BoardViewset(viewsets.ModelViewSet):
 
         # Return response with serialized object data.
         return Response(data=serializer.data)
+    
+
+class CommentByUser(views.APIView):
+    model = Comment
+    serializer_class = CommentSerializer
+    edit_serializer_class = CommentEditSerializer
+    permission_classes = [permissions.IsAuthenticated, ]
+    
+    def get_queryset(self) -> QuerySet:
+        """
+        Get QuerySet of all Comments made by request user.
+        """
+        user = self.request.user
+        return self.model.objects.filter(user=user)
+    
+    def get(self, request: Request, pk: int | None = None, format=None) -> Response:
+        """
+        Get a list of comments made by a user.
+        If `pk` attribute was provided, then retrieve exact comment.
+        """
+        queryset = self.get_queryset()
+
+        # Retrieve and return single comment if pk was provided.
+        if pk is not None:
+
+            try:
+                queryset = queryset.get(pk=pk)
+                serializer = self.serializer_class(queryset)
+            except self.model.DoesNotExist:
+                data = {"message": "Comment with id=%s was not found." % pk}
+                return Response(data=data, status=404)
+        
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def delete(self, request: Request, pk: int, format=None) -> Response:
+        """
+        Delete given comment.
+        """
+        try:
+            instance = self.get_queryset().get(pk=pk)
+        except self.model.DoesNotExist:
+            data = {"message": "Comment with id=%s was not found." % pk}
+            return Response(data=data, status=404)
+
+        instance.delete()
+        return Response(status=204)
+
+    def patch(self, request: Request, pk: int, format=None) -> Response:
+        """
+        Edit given comment's text.
+        """
+        try:
+            instance = self.get_queryset().get(pk=pk)
+        except self.model.DoesNotExist:
+            data = {"message": "Comment with id=%s was not found." % pk}
+            return Response(data=data, status=404)
+        
+        # Validate data, commit changes.
+        serializer = self.edit_serializer_class(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Set up response output.
+        response = {
+            'id': pk,
+            'text': instance.text,
+            'user': instance.user.username,
+            'message': 'Comment was successfully edited.',
+        }
+
+        return Response(data=response, status=200)
+    
+
+class CommentPin(views.APIView):
+    model = Comment
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated,]
+
+    def get_queryset(self, pk: int) -> QuerySet:
+        return Pin.objects.get(pk=pk).comments.all()
+    
+    def get(self, request: Request, pk: int, format=None) -> Response:
+        """
+        List all the comments under given pin.
+        """
+        queryset = self.get_queryset(pk)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(data=serializer.data)
+    
+    def post(self, request: Request, pk: int, format=None) -> Response:
+        """
+        Comment given pin.
+        """
+
+        # Check if there is Pin with provided pk.
+        try:
+            if not 'pin' in request.data:
+                pin_pk = Pin.objects.get(pk=pk).pk
+            else:
+                pin_pk = Pin.objects.get(pk=request.data.get('pin')).pk
+        except Pin.DoesNotExist:
+            data = {"message": "Pin with id=%s was not found." % pk}
+            return Response(data=data, status=404)
+
+        # Restrict passing another user pk into post-data.
+        if 'user' in request.data:
+            data = {"message": "You should not provide any info about user."}
+            return Response(data=data, status=403)
+        
+        # Retrieve post-data, insert info about user and pin into it.
+        data = request.data.copy()
+        data.setdefault('user', request.user.pk)
+        data.setdefault('pin', pin_pk)
+
+        # Create comment with given data.
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(data=serializer.data, status=201)
