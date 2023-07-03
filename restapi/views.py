@@ -244,7 +244,7 @@ class BoardViewset(viewsets.ModelViewSet):
             },
         )
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
         """
         Provide response for PATCH requests.
         """

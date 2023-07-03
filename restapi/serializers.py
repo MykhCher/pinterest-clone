@@ -6,6 +6,9 @@ from pins.models import Pin, Comment
 
 
 class PinSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing pin data.
+    """
 
     class Meta:
         model = Pin
@@ -13,6 +16,9 @@ class PinSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing profile output data.
+    """
     user = serializers.SlugRelatedField(slug_field="username", read_only=True, allow_null=True)
 
     class Meta:
@@ -21,6 +27,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ProfileEditSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing profile incoming data.
+    """
 
     class Meta:
         model = Profile
@@ -28,6 +37,9 @@ class ProfileEditSerializer(serializers.ModelSerializer):
 
 
 class BoardSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing board output data.
+    """
     user = serializers.SlugRelatedField(slug_field="username", read_only=True, allow_null=True)
 
     class Meta:
@@ -36,6 +48,9 @@ class BoardSerializer(serializers.ModelSerializer):
 
 
 class BoardCreateSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing board incoming data.
+    """
 
     class Meta:
         model = Board
@@ -43,6 +58,9 @@ class BoardCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing comment output data.
+    """
 
     class Meta:
         model = Comment
@@ -50,6 +68,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class CommentEditSerializer(serializers.ModelSerializer):
+    """
+    Used for serializing comment incoming data.
+    """
 
     class Meta:
         model = Comment

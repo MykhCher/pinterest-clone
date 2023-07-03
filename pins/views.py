@@ -33,7 +33,7 @@ class CreatePinView(LoginRequiredMixin, CreateView):
         kwargs.setdefault('user', self.request.user)
         return kwargs
     
-    def form_valid(self, form: CreateBoardForm) -> HttpResponse:
+    def form_valid(self, form: CreatePinForm) -> HttpResponse:
         form.instance.user = self.request.user
         return super().form_valid(form)
     

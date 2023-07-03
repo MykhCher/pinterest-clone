@@ -12,7 +12,6 @@ from django.http import (HttpResponseRedirect,
                         HttpRequest, 
                         HttpResponse, 
                         Http404)
-from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect, render, resolve_url
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone

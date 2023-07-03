@@ -18,14 +18,14 @@ class SendForgotPasswordEmail(threading.Thread):
         self._otp = 0
         threading.Thread.__init__(self)
 
-    def run(self):
+    def run(self) -> None:
         try:
             subject = "@noreply: Your one-time code to reset your password."
             self._otp = send_account_otp(self.email, self.user, subject)
         except SMTPException as e:
             logging.info("There is some error in sending a message. %s", e)
 
-    def get_otp(self):
+    def get_otp(self) -> int:
         return self._otp
     
 
@@ -36,7 +36,7 @@ class SendVerificationToken(threading.Thread):
         self.email = email
         threading.Thread.__init__(self)
 
-    def run(self):
+    def run(self) -> None:
         try:
             subject = "@noreply: Verify your Pinterest account."
             send_verification_token(self.email, self.user, subject)
