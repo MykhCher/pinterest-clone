@@ -117,6 +117,7 @@ CACHES = {
         "KEY_PREFIX": "pinterest",
     }
 }
+CACHE_TTL = 600
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

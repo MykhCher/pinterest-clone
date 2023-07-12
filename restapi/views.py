@@ -1,5 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db.models.query import QuerySet
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from rest_framework import viewsets, permissions, views
 from rest_framework.pagination import PageNumberPagination
@@ -18,6 +22,9 @@ from .serializers import (PinSerializer,
 from accounts.models import Profile, Follow
 from pins.models import Pin, Comment
 from boards.models import Board
+
+# Set up time-to-live for cache.
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
  
 
 class MyPinViewSet(viewsets.ModelViewSet):
@@ -43,6 +50,10 @@ class MyPinViewSet(viewsets.ModelViewSet):
 
         return [permission() for permission in permission_classes]
     
+    @method_decorator(cache_page(CACHE_TTL))
+    def retrieve(self, request, *args, **kwargs) -> Response:
+        return super().retrieve(request, *args, **kwargs)
+    
 
 class AllPinsViewset(viewsets.ReadOnlyModelViewSet):
     """
@@ -53,6 +64,9 @@ class AllPinsViewset(viewsets.ReadOnlyModelViewSet):
     pagination_class = PageNumberPagination
     max_page_size = 100
 
+    @method_decorator(cache_page(CACHE_TTL))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 class PinToBoard(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -149,6 +163,10 @@ class ProfileViewset(viewsets.ModelViewSet):
         data = self.serializer_class(instance).data
         data.setdefault("message", "Profile successfully updated!")
         return Response(data)
+    
+    @method_decorator(cache_page(CACHE_TTL))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 
 class FollowEndpoint(views.APIView):
@@ -344,6 +362,7 @@ class CommentPin(views.APIView):
     def get_queryset(self, pk: int) -> QuerySet:
         return Pin.objects.get(pk=pk).comments.all()
     
+    @method_decorator(cache_page(CACHE_TTL))
     def get(self, request: Request, pk: int, format=None) -> Response:
         """
         List all the comments under given pin.

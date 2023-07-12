@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
 from . import views
 
 urlpatterns = [
@@ -7,7 +8,7 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name="logout"),
 
     path("placeholder/", views.PlaceholderView.as_view(), name="placeholder"),
-    path('profile/<str:user__username>', views.ProfileView.as_view(), name="profile"),
+    path('profile/<str:user__username>', cache_page(300)(views.ProfileView.as_view()), name="profile"),
     path('edit_profile', views.EditProfile.as_view(), name="edit_profile"),
 
     path('follow/<str:username>', views.Follow.as_view(), name='follow'),
