@@ -134,3 +134,7 @@ dmypy.json
 *media/boards
 *profiles
 *media/pins
+
+# Environment secret info
+.env.dev
+.env.prod

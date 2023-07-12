@@ -21,12 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*)ey#%h#)@-9dvikj&nk4@m#aa)wo6+2jidgjrf&543dfbjp*&'
+SECRET_KEY = os.environ.get("SECRET_KEY")
+# SECRET_KEY = 'django-insecure-*)ey#%h#)@-9dvikj&nk4@m#aa)wo6+2jidgjrf&543dfbjp*&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['db', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 ALLOWED_PORTS = ['8000']
 
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
@@ -66,8 +67,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SITE_ID = 2
-DEFAULT_DOMAIN = f"{ALLOWED_HOSTS[2]}:8000"
+# SITE_ID = 2
+DEFAULT_DOMAIN = f"{ALLOWED_HOSTS[0]}:8000"
 
 ROOT_URLCONF = 'pinterest_pet.urls'
 
@@ -95,12 +96,12 @@ WSGI_APPLICATION = 'pinterest_pet.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': os.environ.get("SQL_ENGINE", 'django.db.backends.postgresql'),
         'NAME': os.environ.get("POSTGRES_NAME"),
         'USER': os.environ.get("POSTGRES_USER"),
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": "db",
-        "PORT": "5432",
+        "HOST": os.environ.get("SQL_HOST", "db"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -155,6 +156,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
