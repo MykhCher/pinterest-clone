@@ -46,6 +46,7 @@ ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
 RUN mkdir $APP_HOME/mediafiles
+COPY ./media $APP_HOME/mediafiles
 WORKDIR $APP_HOME
 
 # install dependencies
@@ -54,7 +55,7 @@ COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
-# copy entrypoint.prod.sh
+# copy entrypoint.sh
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
 RUN chmod +x  $APP_HOME/entrypoint.sh
@@ -68,5 +69,5 @@ RUN chown -R app:app $APP_HOME
 # change to the app user
 USER app
 
-# run entrypoint.prod.sh
+# run entrypoint.sh
 ENTRYPOINT ["/home/app/web/entrypoint.sh"]
