@@ -55,10 +55,13 @@ COPY --from=builder /code/wheels /wheels
 COPY --from=builder /code/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
-# copy entrypoint.sh
+# copy and edit entrypoint.sh
 COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
-RUN chmod +x  $APP_HOME/entrypoint.sh
+
+# provide execute permissions for user
+RUN chown -R app:app /home/app/web/entrypoint.sh
+RUN chmod +x /home/app/web/entrypoint.sh
 
 # copy project
 COPY . $APP_HOME
