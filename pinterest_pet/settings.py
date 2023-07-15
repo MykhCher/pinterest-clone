@@ -31,10 +31,10 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 ALLOWED_PORTS = ['8000', '1337']
 
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'a04df287fb5857'
-EMAIL_HOST_PASSWORD = 'ad6ce9677a3f9c'
-EMAIL_PORT = '2525'
+EMAIL_HOST = os.environ.get("EMAIL_HOST", 'sandbox.smtp.mailtrap.io')
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
 
 
 # Application definition
@@ -121,7 +121,7 @@ CACHES = {
         "KEY_PREFIX": "pinterest",
     }
 }
-CACHE_TTL = 600
+CACHE_TTL = 90
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -166,7 +166,7 @@ STATICFILES_DIRS = [
 
 # Media files (Pins, avatars, so on)
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 MEDIA_URL = "/media/"
 
 # Default primary key field type
