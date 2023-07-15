@@ -4,7 +4,5 @@ build:
     nginx: ./nginx/Dockerfile
 
   config:
-    db:
-      image: postgres:latest
-    redis:
-      image: redis:latest
+    db: postgres:latest
+    redis: redis:latest
