@@ -50,7 +50,7 @@ class EmailVerify(View):
             user.save()
             return redirect('login')
         else:
-            return redirect('placeholder')
+            return redirect('profile_register')
 
 
 class RegisterFormView(FormView):
@@ -61,7 +61,12 @@ class RegisterFormView(FormView):
     def form_valid(self, form):
         user = form.save(commit=False)
         user.save()
-        return super().form_valid(form)
+        return render(self.request, 'placeholder.html', context={
+                'message' : 'You successfully registered your user account! \n \
+                    Now check your email and activate your user account. \
+                    (Message can be stored into "Spam" section.)',
+                'title': 'Activate your account',
+            })
     
 class UserLoginView(FormView):
     form_class = UserLoginForm
