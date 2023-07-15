@@ -3,8 +3,8 @@ build:
     web: ./Dockerfile
     nginx: ./nginx/Dockerfile
 
-services:
-  db:
-    image: postgres:latest
-  redis:
-    image: redis:latest
+  config:
+    db:
+      image: postgres:latest
+    redis:
+      image: redis:latest
