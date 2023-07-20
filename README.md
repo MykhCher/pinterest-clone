@@ -43,10 +43,10 @@ sending email. If you dont have one, you can use [Mailtrap](https://mailtrap.io/
 After you sign up, head up hor the [Email Testing](https://mailtrap.io/inboxes) page, visit the `My Inbox` (or create new)
 and in `Integrations` window choose `Django` option. Your credentials and other options will be provided.
 
-### .env.prod. file
+### .env.prod file
 After we installed all the dependencies, we should do one more thing in order for project to work properly.
-In `docker-compose.yml` you can see, that all environment variables are configured via `.env.prod.` file.
-So lets create `.env.prod.` file in the projects root directory.
+In `docker-compose.yml` you can see, that all environment variables are configured via `.env.prod` file.
+So lets create `.env.prod` file in the projects root directory.
 Add the next content to the `.env.prod` file:
 ```
 # Django settings.
