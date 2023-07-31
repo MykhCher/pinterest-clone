@@ -74,6 +74,11 @@ class DeletePinView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         obj = self.get_object()
         return obj.user == self.request.user
+    
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.object = self.get_object()
+        self.object.delete()
+        return redirect(self.get_success_url())
  
 class DetailPinView(LoginRequiredMixin, DetailView):
     model = Pin

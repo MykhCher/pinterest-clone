@@ -120,7 +120,7 @@
             </form>
             <div class="mt-3">
                 <a href="" style="float: right;" class="main-btn btn me-2 text-black"><b>Cancel</b></a>
-                {% comment %} <a href="{% url 'pins:delete_pin' pin.id %}" class="main-btn btn text-black"><b>Delete</b></a> {% endcomment %}
+                <a href="{% url 'delete_pin' pin.id %}" class="main-btn btn text-black"><b>Delete</b></a> 
             </div>
         </div>
         <div class="col-md-4">
