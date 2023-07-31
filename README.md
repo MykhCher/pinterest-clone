@@ -40,15 +40,16 @@ $ pip install -r requirements.txt
 
 There is a mail-sending logic implemented in this app, so if you want to test it, you should have a service, that supports
 sending email. If you dont have one, you can use [Mailtrap](https://mailtrap.io/register/signup?ref=header). 
-After you sign up, head up hor the [Email Testing](https://mailtrap.io/inboxes) page, visit the `My Inbox` (or create new)
-and in `Integrations` window choose `Django` option. Your credentials and other options will be provided.
+After you sign up, head up for the [Email Testing](https://mailtrap.io/inboxes) page, visit the `My Inbox` (or create new)
+and in `Integrations` window choose `Django` option. Your credentials and other options will be provided. 
+To see your password, choose `Show credentials` option, which is above the Integrations window.
 
 ### .env.prod file
 After we installed all the dependencies, we should do one more thing in order for project to work properly.
 In `docker-compose.yml` you can see, that all environment variables are configured via `.env.prod` file.
 So lets create `.env.prod` file in the projects root directory.
 Add the next content to the `.env.prod` file:
-```
+```.env.prod
 # Django settings.
 DEBUG=1
 SECRET_KEY='your-django-secure-key'
